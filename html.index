@@ -1,0 +1,711 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Home, ChevronRight, ChevronLeft, Brain, Eye, Ear, 
+  MessageSquare, BookOpen, Search, Users, Wrench, 
+  Zap, Activity, Check, Ban, AlertTriangle, FileText, 
+  Layers, Lightbulb, RefreshCw, ArrowRight, Book, GraduationCap,
+  Sparkles, Anchor, Monitor, X, ThumbsUp, ThumbsDown
+} from 'lucide-react';
+
+// --- THEME & ASSETS ---
+const colors = {
+  bg: '#7FE7C4', // Mint Green Background
+  dark: '#102E36', // Dark Teal Text/UI
+  light: '#E0F8F1', // Light Teal Accents
+  white: '#FFFFFF',
+  accentRed: '#FF4D4D',
+  accentYellow: '#FDFFA4',
+  accentPurple: '#8B5CF6'
+};
+
+// --- DATA ---
+const STUDENTS_DATA = [
+    {
+        name: "Alex",
+        tagline: "The 'Refuser'",
+        icon: <Brain size={48} />,
+        color: "bg-blue-100 text-blue-800",
+        quote: "He is arrogant. He refuses to participate in the activity even though he knows the answer. He just sits there staring.",
+        realityTitle: "Executive Dysfunction",
+        realityDesc: "It is not refusal, it is an inability to plan the sequence of actions. The brain cannot signal the 'start' command, leading to inertia.",
+        strategies: ["Navigator Strip (Visual Step-by-step)", "Task Breakdown (Micro-tasks)", "Fixed Point Participation"],
+        strengths: ["Strong Vocabulary", "Pattern Recognition", "Deep Focus"],
+        struggles: ["Initiating Tasks", "Group Work", "Transitions"]
+    },
+    {
+        name: "Mia",
+        tagline: "The 'Disruptor'",
+        icon: <Ear size={48} />,
+        color: "bg-purple-100 text-purple-800",
+        quote: "She disrupts the class by humming constantly and covering her ears during listening tasks. It's distracting for everyone.",
+        realityTitle: "Hyperacusis",
+        realityDesc: "The humming creates a 'white noise' barrier to block out painful classroom frequencies. It is a coping strategy, not misbehavior.",
+        strategies: ["Noise Cancelling Headphones", "Warning before audio tracks", "Quiet Corner Pass"],
+        strengths: ["Perfect Pitch", "Detail Oriented", "Visual Memory"],
+        struggles: ["Sensory Overload", "Unpredictability", "Loud Environments"]
+    },
+    {
+        name: "Leo",
+        tagline: "The 'Rude' One",
+        icon: <MessageSquare size={48} />,
+        color: "bg-orange-100 text-orange-900",
+        quote: "I was telling a funny story, and he interrupted just to correct my grammar. He completely killed the mood intentionally.",
+        realityTitle: "Literalism & Truth Value",
+        realityDesc: "Leo prioritizes factual correctness over social bonding. He likely did not understand the playful intent and focused only on the linguistic error.",
+        strategies: ["Explicit Pragmatics Instruction", "Safe Word for 'Joke/Sarcasm'", "Direct feedback (no hints)"],
+        strengths: ["Factual Accuracy", "Honesty", "Rule Adherence"],
+        struggles: ["Sarcasm", "Social Hierarchy", "Small Talk"]
+    }
+];
+
+// --- COMPONENTS ---
+
+// 1. SHARED LAYOUT
+const DashboardLayout = ({ children, title, activeModule, onNavigate, onHome }) => (
+  <div className="min-h-screen w-full font-sans bg-[#7FE7C4] text-[#102E36] flex flex-col overflow-hidden selection:bg-teal-900 selection:text-white">
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300&family=Inter:wght@400;500;600;800;900&family=Permanent+Marker&display=swap');
+      .font-serif { font-family: 'Merriweather', serif; }
+      .font-comic { font-family: 'Permanent Marker', cursive; }
+      .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
+      .animate-float { animation: float 6s ease-in-out infinite; }
+      @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+      
+      /* AGGRESSIVE ANIMATIONS FOR SIMULATION */
+      @keyframes hard-shake {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(-5px, 5px) rotate(2deg); }
+        50% { transform: translate(5px, -2px) rotate(-2deg); }
+        75% { transform: translate(-2px, -8px) rotate(1deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+      }
+      @keyframes flicker {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 0.3; }
+      }
+
+      /* Custom scrollbar */
+      .custom-scroll::-webkit-scrollbar { width: 8px; }
+      .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 46, 54, 0.2); border-radius: 4px; }
+      .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(16, 46, 54, 0.4); }
+    `}</style>
+    
+    {/* Header */}
+    <header className="px-6 py-4 flex justify-between items-center z-50 glass-panel mx-4 mt-4 rounded-2xl shadow-sm shrink-0">
+      <div className="flex items-center gap-4">
+        <button onClick={onHome} className="p-2 bg-teal-900 text-white rounded-lg hover:scale-105 transition-transform"><Home size={20}/></button>
+        <div>
+          <h1 className="font-serif font-bold text-lg leading-none">Case Study 6</h1>
+          <p className="text-xs font-bold uppercase tracking-widest opacity-60">Learners with ASD</p>
+        </div>
+      </div>
+      <div className="hidden md:flex gap-2">
+        {[1,2,3,4,5,6,7].map(num => (
+           <button 
+             key={num} 
+             onClick={() => onNavigate(num)}
+             className={`w-10 h-10 rounded-full font-bold text-base transition-all ${activeModule === num ? 'bg-teal-900 text-white scale-110 shadow-lg' : 'bg-white/60 hover:bg-white'}`}
+           >
+             {num}
+           </button>
+        ))}
+      </div>
+    </header>
+
+    {/* Main Content */}
+    <main className="flex-grow relative p-4 flex flex-col items-center justify-center overflow-hidden">
+       <div className="w-full max-w-[1600px] h-full relative z-10 flex flex-col">
+          {children}
+       </div>
+       
+       {/* Background Blobs */}
+       <div className="fixed top-20 left-10 w-64 h-64 bg-white opacity-20 rounded-full blur-3xl -z-0 pointer-events-none animate-float"></div>
+       <div className="fixed bottom-10 right-10 w-96 h-96 bg-teal-600 opacity-10 rounded-full blur-3xl -z-0 pointer-events-none animate-float" style={{animationDelay: '2s'}}></div>
+    </main>
+
+    {/* Footer Nav */}
+    <footer className="p-4 flex justify-between items-center max-w-[1600px] w-full mx-auto z-50 shrink-0">
+       <button onClick={() => onNavigate(Math.max(0, activeModule - 1))} disabled={activeModule === 0} className="p-4 bg-white/60 hover:bg-white rounded-full backdrop-blur transition-all disabled:opacity-0 shadow-lg border border-white/50"><ChevronLeft size={32}/></button>
+       <button onClick={() => onNavigate(Math.min(7, activeModule + 1))} disabled={activeModule === 7} className="p-4 bg-teal-900 text-white hover:bg-teal-800 rounded-full shadow-xl transition-all disabled:opacity-0"><ChevronRight size={32}/></button>
+    </footer>
+  </div>
+);
+
+// --- MODULE 0: HOME / DASHBOARD ---
+const HomeModule = ({ onNavigate }) => (
+  <div className="flex flex-col items-center justify-center h-full animate-[fadeIn_0.5s] overflow-y-auto custom-scroll">
+    <div className="text-center mb-10 shrink-0">
+      <h1 className="text-6xl md:text-8xl font-serif font-black text-white drop-shadow-lg mb-6">Bridging the Gap</h1>
+      <div className="bg-yellow-300 h-3 w-48 mx-auto rounded-full mb-8 shadow-lg"></div>
+      <p className="text-2xl md:text-3xl font-bold text-teal-900">Navigating Neurodiversity in the EFL Classroom</p>
+      <p className="text-lg mt-3 font-medium opacity-70 font-mono">Hasselberg • Pacharzyna • Linke</p>
+    </div>
+
+    <div className="w-full max-w-6xl px-4 pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {[
+          { id: 1, title: "Activation", sub: "Sensory Tunnel", icon: <Zap size={28}/>, color: "bg-red-100" },
+          { id: 2, title: "Foundations", sub: "Educational BG", icon: <BookOpen size={28}/>, color: "bg-blue-100" },
+          { id: 3, title: "EFL Context", sub: "Challenges", icon: <Users size={28}/>, color: "bg-teal-100" },
+          { id: 4, title: "Profiles", sub: "Case Studies", icon: <Brain size={28}/>, color: "bg-orange-100" },
+        ].map((item) => (
+          <button key={item.id} onClick={() => onNavigate(item.id)} className={`${item.color} p-6 rounded-[2rem] border-4 border-white shadow-lg hover:scale-105 transition-all text-left flex flex-col justify-between h-40`}>
+            <div className="flex justify-between items-start"><div className="p-3 bg-white/60 rounded-2xl">{item.icon}</div><span className="font-black text-3xl opacity-10">0{item.id}</span></div>
+            <div><h3 className="font-serif font-bold text-xl text-teal-900 leading-none mb-1">{item.title}</h3><p className="uppercase text-[10px] font-bold opacity-60">{item.sub}</p></div>
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { id: 5, title: "Analysis", sub: "Ott (2025)", icon: <Search size={28}/>, color: "bg-yellow-100" },
+          { id: 6, title: "Discussion", sub: "Task Sam", icon: <MessageSquare size={28}/>, color: "bg-purple-100" },
+          { id: 7, title: "Conclusion", sub: "Summary", icon: <FileText size={28}/>, color: "bg-gray-100" },
+        ].map((item) => (
+          <button key={item.id} onClick={() => onNavigate(item.id)} className={`${item.color} p-6 rounded-[2rem] border-4 border-white shadow-lg hover:scale-105 transition-all text-left flex flex-col justify-between h-40`}>
+            <div className="flex justify-between items-start"><div className="p-3 bg-white/60 rounded-2xl">{item.icon}</div><span className="font-black text-3xl opacity-10">0{item.id}</span></div>
+            <div><h3 className="font-serif font-bold text-xl text-teal-900 leading-none mb-1">{item.title}</h3><p className="uppercase text-[10px] font-bold opacity-60">{item.sub}</p></div>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// --- MODULE 1: ACTIVATION (SENSORY TUNNEL) ---
+const ActivationModule = () => {
+  const [phase, setPhase] = useState('intro');
+  const [timeLeft, setTimeLeft] = useState(10);
+  
+  useEffect(() => {
+    let t;
+    if (phase === 'active' && timeLeft > 0) {
+        t = setTimeout(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timeLeft === 0 && phase === 'active') {
+        setPhase('reflection'); 
+    }
+    return () => clearTimeout(t);
+  }, [phase, timeLeft]);
+
+  // CHAOS DATA
+  const noiseWords = ["BUZZ", "HUM", "FLICKER", "SCRAPE", "COUGH", "TAP", "LIGHT", "ECHO", "READ", "LOOK", "FOCUS", "SIT", "LISTEN", "WRITE", "SPEAK", "WAIT", "TURN", "PAGE", "BELL", "CHAIR", "DESK", "PEN", "CLOCK", "TICK", "TOCK", "VOICE", "NOISE", "BRIGHT", "DIM", "SHADOW", "MOVE", "STOP", "GO", "FAST", "SLOW"];
+  const targetWords = ["ANXIOUS", "SHINY", "LOUD"];
+  
+  // 300 words for high density
+  const chaosArray = Array.from({length: 300}).map((_, i) => {
+      if (Math.random() < 0.02) return targetWords[Math.floor(Math.random() * targetWords.length)];
+      return noiseWords[i % noiseWords.length];
+  });
+
+  return (
+    <div className="h-full flex flex-col items-center justify-center p-4">
+      
+      {phase === 'intro' && (
+        <div className="glass-panel p-16 rounded-[3rem] text-center max-w-4xl shadow-2xl relative z-10">
+           <div className="bg-red-100 w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 text-red-600 animate-pulse shadow-inner"><Zap size={64}/></div>
+           <h2 className="text-6xl font-serif font-black mb-6 text-teal-900">The Hook</h2>
+           <p className="text-2xl mb-10 font-medium text-gray-700">Task: Find the <strong className="text-red-600 bg-red-100 px-2 rounded-lg">3 Adjectives</strong>.</p>
+           <button onClick={() => { setPhase('active'); setTimeLeft(10); }} className="bg-teal-900 text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-xl hover:bg-teal-800">Enter Tunnel</button>
+        </div>
+      )}
+
+      {phase === 'active' && (
+        <div className="fixed inset-0 bg-white z-[100] flex items-center justify-center cursor-none overflow-hidden">
+           {/* Timer */}
+           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[25rem] font-black select-none z-0 transition-all duration-300 ${timeLeft <= 5 ? 'text-red-600 scale-125 animate-pulse' : 'text-gray-200'}`}>
+               {timeLeft}
+           </div>
+           {/* Words */}
+           {chaosArray.map((word, i) => (
+             <div key={i} className="absolute font-bold opacity-70 select-none text-gray-900 pointer-events-none" 
+                  style={{
+                    top: `${Math.random() * 100}vh`, 
+                    left: `${Math.random() * 100}vw`, 
+                    transform: `rotate(${Math.random() * 360}deg) scale(${0.5 + Math.random() * 2})`,
+                    fontSize: `${0.8 + Math.random() * 3}rem`,
+                    animation: `hard-shake ${0.05 + Math.random() * 0.15}s infinite, ${Math.random() > 0.8 ? 'flicker 0.2s infinite' : 'none'}`
+                  }}>
+               {word}
+             </div>
+           ))}
+        </div>
+      )}
+
+      {phase === 'reflection' && (
+        <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center animate-[fadeIn_1s]">
+            <h2 className="text-6xl font-serif font-bold text-white mb-12">Time's Up.</h2>
+            <div className="max-w-4xl text-center px-4">
+                <p className="text-3xl text-gray-300 font-medium mb-12 leading-relaxed">"How did that feel? <br/> Could you filter the information?"</p>
+                <button onClick={() => setPhase('result')} className="px-10 py-5 bg-white text-black rounded-full font-bold text-xl hover:scale-105 transition-transform">Reveal Analysis</button>
+            </div>
+        </div>
+      )}
+
+      {phase === 'result' && (
+         <div className="bg-white p-12 rounded-[3rem] shadow-2xl max-w-6xl w-full flex flex-col md:flex-row gap-12 border border-white/50 h-auto animate-[fadeIn_0.5s]">
+            <div className="md:w-1/2 flex flex-col justify-center">
+               <h2 className="text-4xl font-serif font-bold text-teal-900 mb-8">The Experience: Overload</h2>
+               <p className="text-gray-500 font-bold uppercase tracking-widest text-sm mb-4">The Hidden Words Were:</p>
+               <div className="flex flex-wrap gap-4 mb-8">
+                  {['ANXIOUS', 'SHINY', 'LOUD'].map(word => <div key={word} className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl font-bold text-xl border-2 border-gray-300">{word}</div>)}
+               </div>
+               <div className="p-8 bg-red-50 border-l-8 border-red-500 rounded-r-2xl mb-8 shadow-sm">
+                  <p className="text-xl text-red-900 font-semibold italic leading-relaxed">"Sensory overload can reduce participation even when tasks are linguistically manageable."</p>
+                  <p className="text-xs text-red-700 mt-3 font-bold uppercase tracking-widest">— Autism.org.uk</p>
+               </div>
+               <button onClick={() => setPhase('intro')} className="flex items-center gap-2 text-base font-bold uppercase text-gray-400 hover:text-teal-900 transition-colors self-start"><RefreshCw size={20}/> Reset Simulation</button>
+            </div>
+            <div className="md:w-1/2 border-l-2 border-gray-100 pl-12 flex flex-col justify-center">
+               <h3 className="uppercase tracking-widest font-bold text-base text-gray-400 mb-6">Emerging Patterns</h3>
+               <ul className="space-y-6 font-medium text-xl text-gray-700">
+                  <li className="flex gap-4 items-center p-4 bg-gray-50 rounded-2xl"><div className="w-4 h-4 bg-teal-500 rounded-full shrink-0"/>Communication difficulties</li>
+                  <li className="flex gap-4 items-center p-4 bg-gray-50 rounded-2xl"><div className="w-4 h-4 bg-teal-500 rounded-full shrink-0"/>Group work anxiety</li>
+                  <li className="flex gap-4 items-center p-4 bg-gray-50 rounded-2xl"><div className="w-4 h-4 bg-teal-500 rounded-full shrink-0"/>Sensory processing (Noise/Light)</li>
+               </ul>
+            </div>
+         </div>
+      )}
+    </div>
+  );
+}
+
+// --- MODULE 2: FOUNDATIONS ---
+const FoundationsModule = () => {
+  const [tab, setTab] = useState('who');
+  return (
+    <div className="h-full p-4 flex flex-col max-w-7xl mx-auto w-full">
+       <div className="flex gap-4 mb-8 shrink-0 justify-center">
+         {['who', 'persp', 'incl'].map(t => (
+            <button key={t} onClick={() => setTab(t)} className={`px-8 py-3 rounded-full font-bold text-lg transition-all border-2 border-transparent ${tab === t ? 'bg-teal-900 text-white shadow-lg scale-105' : 'bg-white/60 text-teal-900 hover:bg-white border-white'}`}>
+                {t === 'who' && 'Definition (WHO)'}
+                {t === 'persp' && 'Med vs. Ed'}
+                {t === 'incl' && 'Inclusion'}
+            </button>
+         ))}
+       </div>
+       <div className="flex-grow bg-white rounded-[3rem] p-12 shadow-2xl border border-white/50 relative overflow-hidden overflow-y-auto custom-scroll">
+          {tab === 'who' && (
+             <div className="flex flex-col md:flex-row items-center gap-12 h-full animate-[fadeIn_0.5s]">
+                <div className="md:w-1/3 bg-blue-50 p-10 rounded-[2.5rem] h-full flex items-center justify-center border border-blue-100"><BookOpen size={140} className="text-blue-300 drop-shadow-sm"/></div>
+                <div className="md:w-2/3">
+                   <h2 className="text-5xl font-serif font-bold mb-8 text-gray-900">What is ASD?</h2>
+                   <blockquote className="text-2xl leading-relaxed font-medium text-gray-700 mb-8 border-l-8 border-blue-300 pl-8 py-2">"Autism spectrum disorders (ASD) are a diverse group of conditions... characterized by some degree of difficulty with social interaction and communication. Other characteristics are atypical patterns of activities and behaviours..."</blockquote>
+                   <p className="text-sm font-bold uppercase tracking-widest opacity-60 mb-10">— World Health Organization, 2025</p>
+                   <div className="bg-yellow-50 p-8 rounded-2xl border border-yellow-200 shadow-sm">
+                      <strong className="text-yellow-900 block mb-4 uppercase text-sm tracking-wider font-bold">The "Spectrum" in Educational Contexts</strong>
+                      <ul className="list-disc list-inside space-y-3 text-yellow-900 font-semibold text-lg">
+                          <li>Describes heterogeneity, not a single profile.</li>
+                          <li>Individual differences in communication & learning (CDC, 2024).</li>
+                          <li>Varying levels of support needed across contexts.</li>
+                      </ul>
+                   </div>
+                </div>
+             </div>
+          )}
+          {tab === 'persp' && (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-full animate-[fadeIn_0.5s]">
+                <div className="bg-red-50 p-10 rounded-[2.5rem] border border-red-100 flex flex-col shadow-sm">
+                   <div className="flex items-center gap-5 mb-8 text-red-800"><div className="p-4 bg-red-100 rounded-2xl"><Activity size={40}/></div><h3 className="font-bold text-3xl">Medical Perspective</h3></div>
+                   <ul className="space-y-6 text-xl font-medium text-red-900 mb-auto">
+                      <li className="flex gap-4"><Check size={28} className="text-red-400"/> Diagnosis & Classification</li>
+                      <li className="flex gap-4"><Check size={28} className="text-red-400"/> Focus on deficits & symptoms</li>
+                      <li className="flex gap-4"><Check size={28} className="text-red-400"/> WHO / ICD-11 Criteria</li>
+                   </ul>
+                   <p className="text-sm font-bold text-red-400 mt-6 uppercase tracking-widest">(WHO, 2025)</p>
+                </div>
+                <div className="bg-green-50 p-10 rounded-[2.5rem] border border-green-100 shadow-xl scale-[1.01] flex flex-col ring-4 ring-green-100/50">
+                   <div className="flex items-center gap-5 mb-8 text-green-800"><div className="p-4 bg-green-100 rounded-2xl"><GraduationCap size={40}/></div><h3 className="font-bold text-3xl">Educational Perspective</h3></div>
+                   <ul className="space-y-6 text-xl font-bold text-green-900 mb-auto">
+                      <li className="flex gap-4"><Check size={28} className="text-green-500"/> Learning conditions & Participation</li>
+                      <li className="flex gap-4"><Check size={28} className="text-green-500"/> Focus on barriers in school context</li>
+                      <li className="flex gap-4"><Check size={28} className="text-green-500"/> Support needs (Groschke & Vock, 2018)</li>
+                   </ul>
+                   <div className="mt-8 text-base font-semibold italic text-green-800 border-t-2 border-green-200 pt-6 bg-white/60 p-6 rounded-2xl">"Barriers often arise from classroom structures, not from the learners." <br/><span className="text-sm font-normal not-italic mt-2 block opacity-70">(Errens, 2017, p. 7)</span></div>
+                </div>
+             </div>
+          )}
+          {tab === 'incl' && (
+              <div className="animate-[fadeIn_0.5s] p-8 h-full flex flex-col justify-center">
+                  <h2 className="text-4xl font-serif font-bold text-teal-900 mb-12 text-center">Inclusion in Educational Research</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="bg-gray-50 p-8 rounded-[2rem] border-t-8 border-teal-500 shadow-md hover:-translate-y-2 transition-transform">
+                          <h4 className="font-bold text-2xl mb-4 text-gray-800">Participation</h4>
+                          <p className="text-gray-700 text-lg leading-relaxed font-medium">Inclusion focuses on participation & access to learning opportunities.</p>
+                          <p className="text-xs text-gray-400 mt-6 font-bold uppercase tracking-widest">(Groschke & Vock, 2018)</p>
+                      </div>
+                      <div className="bg-gray-50 p-8 rounded-[2rem] border-t-8 border-teal-500 shadow-md hover:-translate-y-2 transition-transform">
+                          <h4 className="font-bold text-2xl mb-4 text-gray-800">Structure</h4>
+                          <p className="text-gray-700 text-lg leading-relaxed font-medium">Barriers often arise from inflexible classroom structures, not from the learner.</p>
+                          <p className="text-xs text-gray-400 mt-6 font-bold uppercase tracking-widest">(Errens, 2017)</p>
+                      </div>
+                      <div className="bg-gray-50 p-8 rounded-[2rem] border-t-8 border-teal-500 shadow-md hover:-translate-y-2 transition-transform">
+                          <h4 className="font-bold text-2xl mb-4 text-gray-800">Adaptation</h4>
+                          <p className="text-gray-700 text-lg leading-relaxed font-medium">Inclusive teaching requires adaptation of learning environments to fit the student.</p>
+                          <p className="text-xs text-gray-400 mt-6 font-bold uppercase tracking-widest">(Bertelsmann Stiftung, 2015)</p>
+                      </div>
+                  </div>
+              </div>
+          )}
+       </div>
+    </div>
+  );
+};
+
+// --- MODULE 3: EFL CONTEXT ---
+const EFLContextModule = () => (
+  <div className="h-full flex flex-col p-4 max-w-[1600px] mx-auto overflow-y-auto custom-scroll w-full">
+     <h2 className="text-4xl font-serif font-bold text-teal-900 mb-8 shrink-0 text-center md:text-left">ASD in EFL Classrooms</h2>
+     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-4">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col hover:shadow-xl transition-shadow">
+            <div className="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-600 mb-6"><Users size={32}/></div>
+            <h3 className="font-bold text-2xl mb-4 text-gray-900">Social Learning Spaces</h3>
+            <ul className="space-y-4 text-base text-gray-700 font-medium flex-grow">
+                <li className="flex gap-3"><div className="w-2 h-2 bg-blue-400 rounded-full mt-2 shrink-0"/>Language learning relies on interaction (Kuparinen, 2017).</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-blue-400 rounded-full mt-2 shrink-0"/>Implicit rules: Turn-taking, eye contact (North West SEN).</li>
+            </ul>
+        </div>
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col hover:shadow-xl transition-shadow">
+            <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center text-purple-600 mb-6"><MessageSquare size={32}/></div>
+            <h3 className="font-bold text-2xl mb-4 text-gray-900">Communication Demands</h3>
+            <ul className="space-y-4 text-base text-gray-700 font-medium flex-grow">
+                <li className="flex gap-3"><div className="w-2 h-2 bg-purple-400 rounded-full mt-2 shrink-0"/>Interpreting social cues (WHO, 2025).</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-purple-400 rounded-full mt-2 shrink-0"/>Reciprocal interaction in pair work.</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-purple-400 rounded-full mt-2 shrink-0"/>Open activities = High pressure.</li>
+            </ul>
+        </div>
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col hover:shadow-xl transition-shadow">
+            <div className="bg-red-100 w-16 h-16 rounded-2xl flex items-center justify-center text-red-600 mb-6"><Ear size={32}/></div>
+            <h3 className="font-bold text-2xl mb-4 text-gray-900">Sensory Factors</h3>
+            <ul className="space-y-4 text-base text-gray-700 font-medium flex-grow">
+                <li className="flex gap-3"><div className="w-2 h-2 bg-red-400 rounded-full mt-2 shrink-0"/>Noise affects listening comprehension.</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-red-400 rounded-full mt-2 shrink-0"/>Visual stimuli influence concentration.</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-red-400 rounded-full mt-2 shrink-0"/><strong>Overload reduces participation.</strong></li>
+            </ul>
+        </div>
+        <div className="bg-teal-900 text-white p-8 rounded-[2.5rem] shadow-lg flex flex-col lg:col-span-1">
+            <div className="bg-teal-700 w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6"><Anchor size={32}/></div>
+            <h3 className="font-bold text-2xl mb-4 text-white">Structure & Predictability</h3>
+            <ul className="space-y-4 text-base text-teal-100 font-medium flex-grow">
+                <li className="flex gap-3"><div className="w-2 h-2 bg-teal-400 rounded-full mt-2 shrink-0"/>Clear task structure reduces uncertainty (Errens, 2017).</li>
+                <li className="flex gap-3"><div className="w-2 h-2 bg-teal-400 rounded-full mt-2 shrink-0"/>Predictable routines increase engagement.</li>
+            </ul>
+        </div>
+        <div className="bg-yellow-50 p-8 rounded-[2.5rem] shadow-lg border border-yellow-200 flex flex-col lg:col-span-2 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-200 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-yellow-200 w-16 h-16 rounded-2xl flex items-center justify-center text-yellow-800"><Sparkles size={32}/></div>
+                    <h3 className="font-bold text-2xl text-yellow-900">Strengths-Based Perspectives</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white/70 p-5 rounded-2xl shadow-sm"><strong className="block text-lg text-yellow-900 mb-2">Attention to Detail</strong><p className="text-sm text-yellow-800 font-medium">Supports vocabulary & form-focused tasks (Rohde & Schick, 2022).</p></div>
+                    <div className="bg-white/70 p-5 rounded-2xl shadow-sm"><strong className="block text-lg text-yellow-900 mb-2">Strong Interests</strong><p className="text-sm text-yellow-800 font-medium">Increase motivation when integrated (Kuparinen, 2017).</p></div>
+                    <div className="bg-white/70 p-5 rounded-2xl shadow-sm"><strong className="block text-lg text-yellow-900 mb-2">Structured Activities</strong><p className="text-sm text-yellow-800 font-medium">Enhance classroom relationships & behavior (Wire, 2005).</p></div>
+                </div>
+            </div>
+        </div>
+     </div>
+  </div>
+);
+
+// --- MODULE 4: STUDENT PROFILES (FIXED LAYOUT) ---
+const StudentProfilesModule = () => {
+    const [activeTab, setActiveTab] = useState(0);
+    // GLOBAL TOGGLE: This keeps the state consistent when switching tabs
+    const [isAnalysisMode, setIsAnalysisMode] = useState(false);
+
+    const s = STUDENTS_DATA[activeTab];
+
+    return (
+        <div className="h-full flex flex-col p-4 max-w-6xl mx-auto w-full relative z-10">
+            <div className="flex justify-between items-center mb-6 shrink-0">
+                <h2 className="text-4xl font-serif font-bold text-teal-900">Fictional Case Studies</h2>
+                {/* Global switch for all profiles */}
+                <button 
+                    onClick={() => setIsAnalysisMode(!isAnalysisMode)}
+                    className={`px-6 py-3 rounded-full font-bold text-lg shadow-lg transition-all flex items-center gap-2 ${isAnalysisMode ? 'bg-teal-900 text-white' : 'bg-white text-teal-900 border-2 border-teal-900'}`}
+                >
+                    {isAnalysisMode ? <><Eye size={20}/> View Observation</> : <><Search size={20}/> Reveal Analysis</>}
+                </button>
+            </div>
+
+            {/* TAB SELECTION */}
+            <div className="flex gap-4 mb-6 shrink-0 justify-center">
+                {STUDENTS_DATA.map((student, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setActiveTab(idx)}
+                        className={`flex items-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-md ${
+                            activeTab === idx 
+                            ? 'bg-teal-900 text-white scale-105 ring-4 ring-teal-100' 
+                            : 'bg-white text-gray-500 hover:bg-gray-50'
+                        }`}
+                    >
+                        <div className={`p-2 rounded-lg ${activeTab === idx ? 'bg-white/20' : student.color}`}>
+                            {React.cloneElement(student.icon, { size: 24 })}
+                        </div>
+                        <span className="font-bold text-lg">{student.name}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* CARD CONTENT */}
+            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-white/50 flex-grow relative overflow-hidden flex flex-col">
+                {!isAnalysisMode ? (
+                    // OBSERVATION MODE
+                    <div className="flex flex-col items-center justify-center text-center h-full animate-[fadeIn_0.5s]">
+                        <div className={`w-32 h-32 rounded-full ${s.color} flex items-center justify-center mb-8 shadow-inner`}>
+                            {React.cloneElement(s.icon, {size: 64})}
+                        </div>
+                        <h2 className="text-5xl font-black mb-4 text-gray-800">{s.name}</h2>
+                        <p className="text-xl font-bold text-gray-400 uppercase tracking-widest mb-10">{s.tagline}</p>
+                        <blockquote className="text-3xl font-serif italic text-gray-700 max-w-4xl leading-relaxed">
+                            "{s.quote}"
+                        </blockquote>
+                    </div>
+                ) : (
+                    // ANALYSIS MODE
+                    <div className="h-full flex flex-col animate-[fadeIn_0.5s] overflow-y-auto custom-scroll pr-2">
+                        <div className="flex items-center gap-6 mb-8 shrink-0">
+                            <div className="bg-teal-100 p-4 rounded-2xl text-teal-800"><Activity size={32}/></div>
+                            <div>
+                                <span className="text-yellow-600 font-bold uppercase tracking-widest text-xs">Underlying Cause</span>
+                                <h3 className="text-4xl font-serif font-bold text-teal-900">{s.realityTitle}</h3>
+                            </div>
+                        </div>
+
+                        <p className="text-xl text-gray-700 mb-10 leading-relaxed border-l-4 border-teal-200 pl-6">{s.realityDesc}</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 shrink-0">
+                            <div className="bg-green-50 p-6 rounded-2xl border border-green-100">
+                                <strong className="flex items-center gap-2 text-green-800 uppercase tracking-widest mb-4"><ThumbsUp size={20}/> Strengths</strong>
+                                <ul className="space-y-3 font-medium text-green-900 text-lg">
+                                    {s.strengths.map((str, i) => <li key={i} className="flex gap-3"><Check size={20} className="shrink-0"/> {str}</li>)}
+                                </ul>
+                            </div>
+                            <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                                <strong className="flex items-center gap-2 text-red-800 uppercase tracking-widest mb-4"><ThumbsDown size={20}/> Challenges</strong>
+                                <ul className="space-y-3 font-medium text-red-900 text-lg">
+                                    {s.struggles.map((str, i) => <li key={i} className="flex gap-3"><Ban size={20} className="shrink-0"/> {str}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="mt-auto bg-yellow-50 p-8 rounded-2xl border border-yellow-200 flex items-center gap-8">
+                            <div className="bg-yellow-200 p-4 rounded-full text-yellow-900 shrink-0"><Wrench size={32}/></div>
+                            <div>
+                                <strong className="block text-yellow-900 uppercase tracking-widest text-xs mb-2">Recommended Strategies</strong>
+                                <div className="flex flex-wrap gap-3">
+                                    {s.strategies.map((str, i) => (
+                                        <span key={i} className="bg-white px-4 py-2 font-bold text-sm text-yellow-900 rounded-xl shadow-sm border border-yellow-100">{str}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// --- MODULE 5: ANALYSIS (OTT 2025) ---
+const AnalysisModule = () => {
+   const [activeTab, setActiveTab] = useState('criteria'); 
+   return (
+   <div className="h-full p-4 max-w-[1600px] mx-auto flex flex-col overflow-y-auto custom-scroll w-full">
+      <div className="flex justify-between items-end mb-8 shrink-0">
+          <div>
+            <div className="inline-block bg-teal-100 text-teal-800 px-4 py-1.5 rounded-full font-bold text-sm uppercase mb-3">Case Study Analysis</div>
+            <h2 className="text-5xl font-serif font-bold text-teal-900 mb-1">Ott (2025)</h2>
+            <p className="text-xl text-gray-600 font-medium">Accessibility of EFL Materials for Learners with ASD</p>
+          </div>
+          <div className="bg-white/50 p-1.5 rounded-full flex gap-2">
+              <button onClick={() => setActiveTab('criteria')} className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeTab === 'criteria' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Theory: Criteria</button>
+              <button onClick={() => setActiveTab('example')} className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeTab === 'example' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Example: Weather Task</button>
+          </div>
+      </div>
+
+      {activeTab === 'criteria' && (
+         <div className="animate-[fadeIn_0.5s] flex flex-col h-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 flex-grow">
+                <div className="bg-white p-8 rounded-[2.5rem] border-t-8 border-blue-500 shadow-lg hover:-translate-y-1 transition-transform">
+                    <h3 className="font-bold text-2xl mb-4 text-gray-800">1. Task Structure</h3>
+                    <ul className="text-lg text-gray-700 font-medium space-y-4">
+                        <li className="flex gap-3"><Check size={24} className="text-blue-500 shrink-0"/>Steps clearly sequenced & visually separated.</li>
+                        <li className="flex gap-3"><Check size={24} className="text-blue-500 shrink-0"/>Explicit outcomes stated before execution.</li>
+                        <li className="flex gap-3"><Check size={24} className="text-blue-500 shrink-0"/>Predictable format reduces uncertainty.</li>
+                    </ul>
+                </div>
+                <div className="bg-white p-8 rounded-[2.5rem] border-t-8 border-red-500 shadow-lg hover:-translate-y-1 transition-transform">
+                    <h3 className="font-bold text-2xl mb-4 text-gray-800">2. Sensory Load</h3>
+                    <ul className="text-lg text-gray-700 font-medium space-y-4">
+                        <li className="flex gap-3"><Check size={24} className="text-red-500 shrink-0"/>Reduced visual clutter (focus on content).</li>
+                        <li className="flex gap-3"><Check size={24} className="text-red-500 shrink-0"/>Consistent layout & clear typography.</li>
+                        <li className="flex gap-3"><Check size={24} className="text-red-500 shrink-0"/>Avoidance of unnecessary decoration.</li>
+                    </ul>
+                </div>
+                <div className="bg-white p-8 rounded-[2.5rem] border-t-8 border-yellow-500 shadow-lg hover:-translate-y-1 transition-transform">
+                    <h3 className="font-bold text-2xl mb-4 text-gray-800">3. Individualisation</h3>
+                    <ul className="text-lg text-gray-700 font-medium space-y-4">
+                        <li className="flex gap-3"><Check size={24} className="text-yellow-500 shrink-0"/>Variation without changing learning goals.</li>
+                        <li className="flex gap-3"><Check size={24} className="text-yellow-500 shrink-0"/>Optional support (scaffolding).</li>
+                        <li className="flex gap-3"><Check size={24} className="text-yellow-500 shrink-0"/>Self-paced work within structure.</li>
+                    </ul>
+                </div>
+            </div>
+            <div className="bg-teal-900 text-white p-10 rounded-[3rem] shadow-xl flex items-center gap-10 shrink-0">
+                <div className="bg-teal-800 p-6 rounded-3xl shrink-0 hidden md:block border border-teal-700"><Lightbulb size={48} className="text-yellow-300"/></div>
+                <div>
+                    <h4 className="font-bold text-3xl mb-4 text-teal-100">Summary of Key Findings</h4>
+                    <ul className="space-y-3 text-xl font-medium">
+                        <li className="flex gap-3 items-start"><span className="text-yellow-400 font-bold">➢</span> Accessibility is mainly influenced by <strong>material design</strong>, not content level.</li>
+                        <li className="flex gap-3 items-start"><span className="text-yellow-400 font-bold">➢</span> Clear structure and reduced sensory load support participation.</li>
+                        <li className="flex gap-3 items-start"><span className="text-yellow-400 font-bold">➢</span> Differentiation can be implemented without lowering expectations.</li>
+                    </ul>
+                </div>
+            </div>
+         </div>
+      )}
+
+      {activeTab === 'example' && (
+         <div className="animate-[fadeIn_0.5s] h-full flex flex-col">
+            <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-gray-200 flex-grow flex flex-col md:flex-row gap-8 overflow-hidden">
+                 <div className="md:w-1/2 bg-[#FFFBEB] rounded-[2rem] p-10 border-4 border-white shadow-inner relative overflow-hidden flex flex-col items-center justify-center text-center group">
+                      <div className="absolute top-0 left-0 bg-red-500 text-white text-sm font-bold px-6 py-2 rounded-br-2xl z-10 shadow-md">Version A: High Load</div>
+                      <h3 className="font-comic text-5xl text-blue-600 rotate-[-2deg] mb-8 drop-shadow-sm">THE WEATHER!</h3>
+                      <div className="grid grid-cols-3 gap-8 opacity-40 mb-8">
+                          {Array.from({length:6}).map((_,i)=><div key={i} className="text-5xl animate-bounce">🌧️</div>)}
+                      </div>
+                      <div className="bg-yellow-300 p-4 text-lg font-bold border-2 border-black rotate-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8">DON'T FORGET HOMEWORK!!!</div>
+                      <div className="text-base font-bold text-red-500 bg-red-50 px-4 py-2 rounded-lg">Warning: Unnecessary decorative elements.</div>
+                 </div>
+                 <div className="flex items-center justify-center"><ArrowRight size={48} className="text-teal-900 opacity-30"/></div>
+                 <div className="md:w-1/2 bg-white rounded-[2rem] p-10 border-4 border-teal-50 shadow-sm flex flex-col relative">
+                      <div className="absolute top-0 left-0 bg-teal-900 text-white text-sm font-bold px-6 py-2 rounded-br-2xl z-10 shadow-md">Version B: Accessible</div>
+                      <div className="mt-8 border-b-2 border-gray-100 pb-4 mb-8">
+                          <h3 className="font-sans font-bold text-4xl text-gray-800 mb-2">The Weather</h3>
+                          <p className="text-sm text-gray-400 uppercase font-bold tracking-widest">Speaking Task</p>
+                      </div>
+                      <div className="space-y-6 flex-grow">
+                          <div className="flex gap-5 items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                             <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+                             <p className="text-2xl font-semibold text-gray-800">Look at the window.</p>
+                          </div>
+                          <div className="flex gap-5 items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                             <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+                             <div>
+                                <p className="text-2xl font-semibold text-gray-800">Say: <span className="bg-teal-100 px-3 py-1 rounded-lg font-bold text-teal-900 border border-teal-200">"It is..."</span></p>
+                                <p className="text-base text-gray-500 mt-2 font-medium">(sunny, cloudy, raining)</p>
+                             </div>
+                          </div>
+                      </div>
+                 </div>
+            </div>
+            <p className="text-center text-base text-gray-500 mt-6 italic font-medium">"Version B applies Ott's criteria: Visual separation, step-by-step sequencing, no clutter."</p>
+         </div>
+      )}
+   </div>
+   );
+};
+
+// --- MODULE 6: DISCUSSION ---
+const DiscussionModule = () => (
+   <div className="h-full p-4 flex flex-col items-center justify-center max-w-6xl mx-auto overflow-y-auto custom-scroll w-full">
+      <h2 className="text-4xl md:text-6xl font-serif font-black text-white drop-shadow-md mb-10 text-center shrink-0">Didactic Decision-Making</h2>
+      <div className="bg-white p-12 md:p-16 rounded-[3rem] shadow-2xl w-full border border-white/50 relative overflow-hidden flex flex-col gap-10">
+         <div className="absolute top-0 right-0 w-48 h-48 bg-purple-100 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+         <div className="relative z-10">
+            <div className="flex items-center gap-5 mb-6">
+               <div className="bg-purple-100 p-4 rounded-2xl text-purple-700 shadow-sm"><Users size={40}/></div>
+               <h3 className="text-3xl font-bold text-gray-900">Task: The Case of Sam</h3>
+            </div>
+            <div className="bg-purple-50 p-8 rounded-[2rem] border-2 border-purple-100 mb-8">
+               <p className="text-2xl text-gray-800 mb-4 font-medium leading-relaxed"><strong>Profile:</strong> Very literal thinker. "Fun" but vague instructions cause panic.</p>
+               <div className="flex gap-4 text-base text-gray-600 italic bg-white/60 p-4 rounded-xl inline-block"><span>"Keep your eyes peeled" &rarr; Disturbed.</span><span className="text-purple-300">|</span><span>"Give me a hand" &rarr; Confused.</span></div>
+            </div>
+            <p className="text-2xl font-bold text-teal-900 leading-normal">How would you adapt a standard <strong>"Find someone who..."</strong> activity for Sam?</p>
+         </div>
+         <div className="relative z-10 border-t-2 border-gray-100 pt-10">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Joint Reflection: Didactic Solutions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl"><div className="bg-green-100 p-2 rounded-full"><Check size={24} className="text-green-600"/></div><span className="text-lg text-gray-700 font-bold">Clearer task structure (Step-by-step).</span></div>
+               <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl"><div className="bg-green-100 p-2 rounded-full"><Check size={24} className="text-green-600"/></div><span className="text-lg text-gray-700 font-bold">Predictable interaction formats.</span></div>
+               <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl"><div className="bg-green-100 p-2 rounded-full"><Check size={24} className="text-green-600"/></div><span className="text-lg text-gray-700 font-bold">Reduction of sensory overload.</span></div>
+               <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl"><div className="bg-green-100 p-2 rounded-full"><Check size={24} className="text-green-600"/></div><span className="text-lg text-gray-700 font-bold">Optional support (Visuals).</span></div>
+            </div>
+            <div className="mt-10 bg-teal-900 text-white p-6 rounded-2xl text-center font-bold text-xl shadow-lg transform hover:scale-[1.01] transition-transform">Key Insight: Inclusive decisions focus on learning conditions, not on deficits.</div>
+         </div>
+      </div>
+   </div>
+);
+
+// --- MODULE 7: CONCLUSION ---
+const ConclusionModule = () => (
+    <div className="w-full h-full flex flex-col p-4 max-w-[1600px] mx-auto overflow-y-auto custom-scroll">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 h-full">
+            <div className="flex flex-col justify-center">
+                <h2 className="text-5xl font-serif font-bold text-teal-900 mb-10">Conclusion</h2>
+                <div className="space-y-6">
+                    <div className="bg-white p-8 rounded-[2rem] shadow-lg border-l-[12px] border-teal-600 hover:translate-x-2 transition-transform">
+                        <h3 className="font-bold text-2xl text-teal-900 mb-3">Differentiated Decision-Making</h3>
+                        <p className="text-lg text-gray-700 font-medium leading-relaxed">ASD requires specific didactic choices in EFL, focusing on individual needs rather than deficits.</p>
+                    </div>
+                    <div className="bg-white p-8 rounded-[2rem] shadow-lg border-l-[12px] border-yellow-400 hover:translate-x-2 transition-transform">
+                        <h3 className="font-bold text-2xl text-teal-900 mb-3">Design Matters</h3>
+                        <p className="text-lg text-gray-700 font-medium leading-relaxed">Accessibility depends heavily on task design (structure, visuals) and learning conditions.</p>
+                    </div>
+                    <div className="bg-white p-8 rounded-[2rem] shadow-lg border-l-[12px] border-purple-400 hover:translate-x-2 transition-transform">
+                        <h3 className="font-bold text-2xl text-teal-900 mb-3">Benefit for All</h3>
+                        <p className="text-lg text-gray-700 font-medium leading-relaxed">Inclusive adaptations (clarity, structure) benefit all learners in the classroom.</p>
+                    </div>
+                </div>
+            </div>
+            <div className="bg-white/70 backdrop-blur-md p-10 rounded-[3rem] overflow-y-auto custom-scroll border border-white shadow-xl max-h-full">
+                <h3 className="font-bold text-teal-900 uppercase tracking-widest mb-8 sticky top-0 bg-white/0 backdrop-blur-xl py-4 border-b border-teal-900/10 text-lg">References</h3>
+                <ul className="space-y-4 text-sm text-gray-800 break-words font-serif leading-relaxed">
+                    <li><strong>Autism.org.uk.</strong> (n.d.). Understanding autism. https://www.autism.org.uk</li>
+                    <li><strong>Bertelsmann Stiftung.</strong> (2015). Inklusion in Deutschland: Daten und Fakten.</li>
+                    <li><strong>Centers for Disease Control and Prevention.</strong> (2024). Autism spectrum disorder - data and statistics.</li>
+                    <li><strong>Errens, C.</strong> (2017). Französisch heute. Inklusion am Beispiel Autismus-Spektrum-Störung, 48(3), 5-13.</li>
+                    <li><strong>Geary, E.</strong> (2022). Praxis: Teaching Theory of Mind to Learners with ASD. In Schick & Rohde (Eds.), Von integrativem zu inklusivem Englischunterricht (pp. 167-189). Peter Lang.</li>
+                    <li><strong>Grosche, M., & Vock, M.</strong> (2018). Inklusion. In Handwörterbuch Pädagogische Psychologie (pp. 260-268). Beltz.</li>
+                    <li><strong>Kuparinen, T.</strong> (2017). Perceptions of EFL learning and teaching by autistic students. University of Jyväskylä.</li>
+                    <li><strong>North West SEN Regional Partnership.</strong> (2004). Children with autism: Strategies for accessing the curriculum.</li>
+                    <li><strong>Ott, S.</strong> (2025). Fördermaterialien im inklusiven Englischunterricht: Eine Analyse bestehender Fördermaterialien. Narr Francke Attempto.</li>
+                    <li><strong>Rohde, A.</strong> (2022). Autism, theory of mind and language. In Schick & Rohde (Eds.), Von integrativem zu inklusivem Englischunterricht (pp. 145-166). Peter Lang.</li>
+                    <li><strong>Wire, V.</strong> (2005). Autistic-spectrum disorders and learning foreign languages. Support for Learning, 20(3), 123-130.</li>
+                    <li><strong>WHO.</strong> (2025). Autism spectrum disorder – key facts. https://www.who.int</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+);
+
+
+// --- MAIN APP CONTROLLER ---
+export default function DashboardApp() {
+  const [activeModule, setActiveModule] = useState(0);
+
+  const modules = [
+    <HomeModule onNavigate={setActiveModule} />,
+    <ActivationModule />,
+    <FoundationsModule />,
+    <EFLContextModule />,
+    <StudentProfilesModule />,
+    <AnalysisModule />,
+    <DiscussionModule />,
+    <ConclusionModule />
+  ];
+
+  return (
+    <DashboardLayout 
+      title="Dashboard V3.1" 
+      activeModule={activeModule} 
+      onNavigate={setActiveModule}
+      onHome={() => setActiveModule(0)}
+    >
+      {modules[activeModule]}
+    </DashboardLayout>
+  );
+}
