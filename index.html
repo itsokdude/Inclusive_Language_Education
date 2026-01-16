@@ -34,6 +34,22 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(16, 46, 54, 0.4); }
         
         body { margin: 0; padding: 0; background-color: #7FE7C4; }
+
+        /* Animation Classes */
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        @keyframes hard-shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-5px, 5px) rotate(2deg); }
+            50% { transform: translate(5px, -2px) rotate(-2deg); }
+            75% { transform: translate(-2px, -8px) rotate(1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
     </style>
 </head>
 <body>
@@ -97,7 +113,8 @@
           useEffect(() => {
             const handleKeyDown = (e) => {
                 if (e.key === 'ArrowRight') {
-                    onNavigate(Math.min(10, activeModule + 1));
+                    // Maximum index is 11 (References)
+                    onNavigate(Math.min(11, activeModule + 1));
                 } else if (e.key === 'ArrowLeft') {
                     onNavigate(Math.max(0, activeModule - 1));
                 }
@@ -109,27 +126,6 @@
 
           return (
             <div className="min-h-screen w-full font-sans bg-[#7FE7C4] text-[#102E36] flex flex-col overflow-hidden selection:bg-teal-900 selection:text-white">
-                <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300&family=Inter:wght@400;500;600;800;900&family=Permanent+Marker&display=swap');
-                .font-serif { font-family: 'Merriweather', serif; }
-                .font-comic { font-family: 'Permanent Marker', cursive; }
-                .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
-                .animate-float { animation: float 6s ease-in-out infinite; }
-                @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-                
-                @keyframes hard-shake {
-                    0% { transform: translate(0, 0) rotate(0deg); }
-                    25% { transform: translate(-5px, 5px) rotate(2deg); }
-                    50% { transform: translate(5px, -2px) rotate(-2deg); }
-                    75% { transform: translate(-2px, -8px) rotate(1deg); }
-                    100% { transform: translate(0, 0) rotate(0deg); }
-                }
-                @keyframes flicker {
-                    0%, 100% { opacity: 0.7; }
-                    50% { opacity: 0.3; }
-                }
-                `}</style>
-                
                 <header className="px-6 py-4 flex justify-between items-center z-50 glass-panel mx-4 mt-4 rounded-2xl shadow-sm shrink-0">
                 <div className="flex items-center gap-4">
                     <button onClick={onHome} className="p-2 bg-teal-900 text-white rounded-lg hover:scale-105 transition-transform"><Home size={20}/></button>
@@ -151,104 +147,94 @@
 
                 <footer className="p-4 flex justify-between items-center max-w-[1600px] w-full mx-auto z-50 shrink-0">
                 <button onClick={() => onNavigate(Math.max(0, activeModule - 1))} disabled={activeModule === 0} className="p-4 bg-white/60 hover:bg-white rounded-full backdrop-blur transition-all disabled:opacity-0 shadow-lg border border-white/50"><ChevronLeft size={32}/></button>
-                <button onClick={() => onNavigate(Math.min(10, activeModule + 1))} disabled={activeModule === 10} className="p-4 bg-teal-900 text-white hover:bg-teal-800 rounded-full shadow-xl transition-all disabled:opacity-0"><ChevronRight size={32}/></button>
+                <button onClick={() => onNavigate(Math.min(11, activeModule + 1))} disabled={activeModule === 11} className="p-4 bg-teal-900 text-white hover:bg-teal-800 rounded-full shadow-xl transition-all disabled:opacity-0"><ChevronRight size={32}/></button>
                 </footer>
             </div>
           );
         };
 
-        // --- MODULE 0: AGENDA ---
-        const AgendaModule = ({ onNavigate }) => (
-            <div className="h-full flex flex-col items-center justify-center p-4">
-                <div className="glass-panel p-12 md:p-16 rounded-[3rem] shadow-2xl max-w-4xl w-full flex flex-col items-center animate-[fadeIn_0.5s]">
-                    <div className="bg-yellow-200 w-24 h-24 rounded-full flex items-center justify-center mb-8 shadow-inner text-yellow-800 animate-pulse">
-                        <List size={64} />
-                    </div>
-                    <h2 className="text-6xl font-serif font-black mb-8 text-teal-900 border-b-4 border-yellow-300 pb-2">Agenda</h2>
+        // --- MODULE 0: COVER SLIDE ---
+        const CoverModule = ({ onNavigate }) => (
+            <div className="flex flex-col items-center justify-center h-full fade-in p-4 text-center">
+                <div className="bg-white/40 backdrop-blur-md p-16 rounded-[3rem] shadow-2xl border border-white/50 max-w-5xl w-full flex flex-col items-center">
                     
-                    {/* NEW INFO BLOCK */}
-                    <div className="text-center mb-8 space-y-1 text-teal-900 font-medium bg-white/40 p-4 rounded-xl w-full">
-                        <p className="text-xl font-bold leading-tight">Seminar: Inclusive Language Education: Addressing Diversity in English Language Classrooms</p>
-                        <p className="text-lg">Prof. Dr. David Gerlach</p>
-                        <p className="text-sm opacity-75 font-mono">WiSe 2025/26</p>
+                    <div className="mb-8 space-y-2">
+                        <h3 className="text-2xl font-bold text-teal-800 uppercase tracking-widest">Inclusive Language Education</h3>
+                        <p className="text-lg text-teal-700 font-serif italic">Addressing Diversity in English Language Classrooms</p>
                     </div>
 
-                    <ul className="w-full space-y-4 mb-10 text-xl font-medium text-gray-700">
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">01</span>
-                            <span>Introduction & Orientation</span>
-                        </li>
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">02</span>
-                            <span>Educational Background</span>
-                        </li>
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">03</span>
-                            <span>ASD in EFL Classrooms</span>
-                        </li>
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">04</span>
-                            <span>Case Study Analysis (Profiles & Ott 2025)</span>
-                        </li>
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">05</span>
-                            <span>Didactic Decision-Making</span>
-                        </li>
-                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors">
-                            <span className="font-black text-3xl text-teal-900 opacity-20">06</span>
-                            <span>Conclusion & References</span>
-                        </li>
-                    </ul>
+                    <h1 className="text-6xl md:text-8xl font-serif font-black text-teal-900 mb-6 drop-shadow-sm leading-tight">
+                        Case Study 6:<br/>
+                        <span className="text-white text-stroke-teal" style={{textShadow: '2px 2px 0px #134e4a'}}>Learners with ASD</span>
+                    </h1>
+
+                    <div className="w-32 h-2 bg-yellow-300 rounded-full mb-10 shadow-sm"></div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl text-teal-900 text-lg font-medium bg-white/40 p-8 rounded-2xl">
+                        <div className="text-left space-y-1">
+                            <p>Prof. Dr. David Gerlach</p>
+                            <p className="text-sm opacity-75 font-mono">WiSe 2025/26</p>
+                        </div>
+                        <div className="text-left md:text-right space-y-1">
+                            <p>Lotte Hasselberg</p>
+                            <p>Thomas Linke</p>
+                            <p>Adrian Pacharzyna</p>
+                        </div>
+                    </div>
 
                     <button 
                         onClick={() => onNavigate(1)} 
-                        className="bg-teal-900 text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-xl flex items-center gap-3"
+                        className="mt-12 bg-teal-900 text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-xl flex items-center gap-3 cursor-pointer z-50"
                     >
-                        Go to Dashboard <ArrowRight/>
+                        Start <ArrowRight/>
                     </button>
                 </div>
             </div>
         );
 
-        // --- MODULE 1: HOME / DASHBOARD ---
-        const HomeModule = ({ onNavigate }) => (
-          <div className="flex flex-col items-center justify-center h-full animate-[fadeIn_0.5s] overflow-y-auto custom-scroll">
-            <div className="text-center mb-10 shrink-0">
-              <h1 className="text-6xl md:text-8xl font-serif font-black text-white drop-shadow-lg mb-6">Bridging the Gap</h1>
-              <div className="bg-yellow-300 h-3 w-48 mx-auto rounded-full mb-8 shadow-lg"></div>
-              <p className="text-2xl md:text-3xl font-bold text-teal-900">Navigating Neurodiversity in the EFL Classroom</p>
-              <p className="text-lg mt-3 font-medium opacity-70 font-mono">Hasselberg • Pacharzyna • Linke</p>
-            </div>
+        // --- MODULE 1: AGENDA ---
+        const AgendaModule = ({ onNavigate }) => (
+            <div className="h-full flex flex-col items-center justify-center p-4">
+                <div className="glass-panel p-12 md:p-16 rounded-[3rem] shadow-2xl max-w-4xl w-full flex flex-col items-center fade-in">
+                    <div className="bg-yellow-200 w-24 h-24 rounded-full flex items-center justify-center mb-8 shadow-inner text-yellow-800 animate-pulse">
+                        <List size={64} />
+                    </div>
+                    <h2 className="text-6xl font-serif font-black mb-8 text-teal-900 border-b-4 border-yellow-300 pb-2">Agenda</h2>
+                    
+                    <div className="text-center mb-8 space-y-1 text-teal-900 font-medium bg-white/40 p-4 rounded-xl w-full">
+                        <p className="text-xl font-bold leading-tight">Inclusive Language Education: Addressing Diversity in English Language Classrooms</p>
+                        <p className="text-lg">Prof. Dr. David Gerlach</p>
+                        <p className="text-sm opacity-75 font-mono">WiSe 2025/26</p>
+                    </div>
 
-            <div className="w-full max-w-6xl px-4 pb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                {[
-                  { id: 2, title: "Activation", sub: "Sensory Tunnel", icon: <Zap size={28}/>, color: "bg-red-100" },
-                  { id: 3, title: "Foundations", sub: "Educational BG", icon: <BookOpen size={28}/>, color: "bg-blue-100" },
-                  { id: 4, title: "EFL: Challenges", sub: "Barriers", icon: <AlertTriangle size={28}/>, color: "bg-teal-100" }, 
-                  { id: 5, title: "EFL: Solutions", sub: "Strengths & Structure", icon: <Wrench size={28}/>, color: "bg-teal-200" }, 
-                ].map((item) => (
-                  <button key={item.id} onClick={() => onNavigate(item.id)} className={`${item.color} p-6 rounded-[2rem] border-4 border-white shadow-lg hover:scale-105 transition-all text-left flex flex-col justify-between h-40`}>
-                    <div className="flex justify-between items-start"><div className="p-3 bg-white/60 rounded-2xl">{item.icon}</div><span className="font-black text-3xl opacity-10">0{item.id}</span></div>
-                    <div><h3 className="font-serif font-bold text-xl text-teal-900 leading-none mb-1">{item.title}</h3><p className="uppercase text-[10px] font-bold opacity-60">{item.sub}</p></div>
-                  </button>
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[
-                  { id: 6, title: "Profiles", sub: "Case Studies", icon: <Brain size={28}/>, color: "bg-orange-100" },
-                  { id: 7, title: "Analysis", sub: "Ott (2025)", icon: <Search size={28}/>, color: "bg-yellow-100" },
-                  { id: 8, title: "Discussion", sub: "Task Sam", icon: <MessageSquare size={28}/>, color: "bg-purple-100" },
-                  { id: 9, title: "Conclusion", sub: "Summary", icon: <FileText size={28}/>, color: "bg-gray-100" },
-                ].map((item) => (
-                  <button key={item.id} onClick={() => onNavigate(item.id)} className={`${item.color} p-6 rounded-[2rem] border-4 border-white shadow-lg hover:scale-105 transition-all text-left flex flex-col justify-between h-40`}>
-                    <div className="flex justify-between items-start"><div className="p-3 bg-white/60 rounded-2xl">{item.icon}</div><span className="font-black text-3xl opacity-10">0{item.id}</span></div>
-                    <div><h3 className="font-serif font-bold text-xl text-teal-900 leading-none mb-1">{item.title}</h3><p className="uppercase text-[10px] font-bold opacity-60">{item.sub}</p></div>
-                  </button>
-                ))}
-              </div>
+                    <ul className="w-full space-y-4 mb-10 text-xl font-medium text-gray-700">
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(2)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">01</span>
+                            <span>Introduction & Orientation</span>
+                        </li>
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(3)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">02</span>
+                            <span>Educational Background</span>
+                        </li>
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(4)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">03</span>
+                            <span>ASD in EFL Classrooms</span>
+                        </li>
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(7)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">04</span>
+                            <span>Case Study Analysis (Profiles & Ott 2025)</span>
+                        </li>
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(9)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">05</span>
+                            <span>Didactic Decision-Making</span>
+                        </li>
+                        <li className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl hover:bg-white transition-colors cursor-pointer" onClick={() => onNavigate(11)}>
+                            <span className="font-black text-3xl text-teal-900 opacity-20">06</span>
+                            <span>Conclusion & References</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
         );
 
         // --- MODULE 2: ACTIVATION (SENSORY TUNNEL) ---
@@ -266,7 +252,7 @@
             return () => clearTimeout(t);
           }, [phase, timeLeft]);
 
-          const noiseWords = ["BUZZ", "HUM", "FLICKER", "SCRAPE", "COUGH", "TAP", "LIGHT", "ECHO", "READ", "LOOK", "FOCUS", "SIT", "LISTEN", "WRITE", "SPEAK", "WAIT", "TURN", "PAGE", "BELL", "CHAIR", "DESK", "PEN", "CLOCK", "TICK", "TOCK", "VOICE", "NOISE", "BRIGHT", "DIM", "SHADOW", "MOVE", "STOP", "GO", "FAST", "SLOW"];
+          const noiseWords = ["BUZZ", "HUM", "FLICKER", "SCRAPE", "COUGH", "TAP", "LIGHT", "ECHO", "READ", "LOOK", "FOCUS", "SIT", "LISTEN", "WRITE", "SPEAK", "WAIT", "TURN", "PAGE", "BELL", "CHAIR", "DESK", "PEN", "CLOCK", "TICK", "TOCK", "VOICE", "NOISE", "SHADOW", "MOVE", "STOP", "GO", "DOOR", "FLOOR", "STEP", "BOARD"];
           const targetWords = ["ANXIOUS", "SHINY", "LOUD"];
           
           const chaosArray = Array.from({length: 300}).map((_, i) => {
@@ -282,7 +268,7 @@
                    <div className="bg-red-100 w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 text-red-600 animate-pulse shadow-inner"><Zap size={64}/></div>
                    <h2 className="text-6xl font-serif font-black mb-6 text-teal-900">The Hook</h2>
                    <p className="text-2xl mb-10 font-medium text-gray-700">Task: Find the <strong className="text-red-600 bg-red-100 px-2 rounded-lg">3 Adjectives</strong>.</p>
-                   <button onClick={() => { setPhase('active'); setTimeLeft(10); }} className="bg-teal-900 text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-xl hover:bg-teal-800">Enter Tunnel</button>
+                   <button onClick={() => { setPhase('active'); setTimeLeft(10); }} className="bg-teal-900 text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-xl hover:bg-teal-800 cursor-pointer">Enter Tunnel</button>
                 </div>
               )}
 
@@ -307,30 +293,30 @@
               )}
 
               {phase === 'reflection' && (
-                <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center animate-[fadeIn_1s] p-8">
+                <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center fade-in p-8" style={{cursor: 'auto'}}>
                     <img 
                         src="https://i.postimg.cc/RVg8QS7x/Whats-App-Image-2026-01-15-at-16-33-01.jpg" 
                         alt="Autism Perception Visualization"
-                        className="max-h-[55vh] w-auto mb-10 rounded-3xl shadow-2xl border-4 border-gray-100 hover:scale-[1.01] transition-transform"
+                        className="max-h-[50vh] w-auto mb-12 rounded-3xl shadow-2xl border-4 border-gray-100 hover:scale-[1.01] transition-transform"
                     />
                     
-                    <div className="max-w-4xl text-center px-4 relative z-10">
-                        <p className="text-4xl font-serif font-bold text-gray-800 mb-8 leading-tight drop-shadow-sm">
+                    <div className="max-w-4xl text-center px-4 relative z-[200]">
+                        <p className="text-5xl font-serif font-bold text-gray-800 mb-10 leading-tight drop-shadow-sm">
                             "How did that feel?<br/>
                             <span className="text-teal-600">Could you filter the information?"</span>
                         </p>
-                        <button 
-                            onClick={() => setPhase('result')} 
-                            className="px-12 py-4 bg-teal-900 text-white rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-xl hover:bg-teal-800 active:scale-95"
-                        >
-                            Reveal Analysis
-                        </button>
+                        {/* No button, visual only as requested */}
                     </div>
                 </div>
               )}
+            </div>
+          );
+        }
 
-              {phase === 'result' && (
-                 <div className="bg-white p-12 rounded-[3rem] shadow-2xl max-w-6xl w-full flex flex-col md:flex-row gap-12 border border-white/50 h-auto animate-[fadeIn_0.5s]">
+        // --- MODULE 3: TUNNEL ANALYSIS ---
+        const TunnelAnalysisModule = () => (
+             <div className="h-full flex flex-col items-center justify-center p-4 w-full">
+                 <div className="bg-white p-12 rounded-[3rem] shadow-2xl max-w-6xl w-full flex flex-col md:flex-row gap-12 border border-white/50 h-auto fade-in">
                     <div className="md:w-1/2 flex flex-col justify-center">
                        <h2 className="text-4xl font-serif font-bold text-teal-900 mb-8">The Experience: Overload</h2>
                        <p className="text-gray-500 font-bold uppercase tracking-widest text-sm mb-4">The Hidden Words Were:</p>
@@ -341,10 +327,9 @@
                           <p className="text-xl text-red-900 font-semibold italic leading-relaxed">"Sensory overload can reduce participation even when tasks are linguistically manageable."</p>
                           <p className="text-xs text-red-700 mt-3 font-bold uppercase tracking-widest">— Autism.org.uk</p>
                        </div>
-                       <button onClick={() => setPhase('intro')} className="flex items-center gap-2 text-base font-bold uppercase text-gray-400 hover:text-teal-900 transition-colors self-start"><RefreshCw size={20}/> Reset Simulation</button>
                     </div>
                     <div className="md:w-1/2 border-l-2 border-gray-100 pl-12 flex flex-col justify-center">
-                       <h3 className="uppercase tracking-widest font-bold text-base text-gray-400 mb-6">Emerging Patterns</h3>
+                       <h3 className="uppercase tracking-widest font-bold text-base text-gray-400 mb-6">Emerging Patterns in EFL</h3>
                        <ul className="space-y-6 font-medium text-xl text-gray-700">
                           <li className="flex gap-4 items-center p-4 bg-gray-50 rounded-2xl"><div className="w-4 h-4 bg-teal-500 rounded-full shrink-0"/>Communication difficulties</li>
                           <li className="flex gap-4 items-center p-4 bg-gray-50 rounded-2xl"><div className="w-4 h-4 bg-teal-500 rounded-full shrink-0"/>Group work anxiety</li>
@@ -352,19 +337,17 @@
                        </ul>
                     </div>
                  </div>
-              )}
-            </div>
-          );
-        }
+             </div>
+        );
 
-        // --- MODULE 3: FOUNDATIONS ---
+        // --- MODULE 4: FOUNDATIONS ---
         const FoundationsModule = () => {
           const [tab, setTab] = useState('who');
           return (
             <div className="h-full p-4 flex flex-col max-w-7xl mx-auto w-full">
                <div className="flex gap-4 mb-8 shrink-0 justify-center">
                  {['who', 'persp', 'incl'].map(t => (
-                    <button key={t} onClick={() => setTab(t)} className={`px-8 py-3 rounded-full font-bold text-lg transition-all border-2 border-transparent ${tab === t ? 'bg-teal-900 text-white shadow-lg scale-105' : 'bg-white/60 text-teal-900 hover:bg-white border-white'}`}>
+                    <button key={t} onClick={() => setTab(t)} className={`px-8 py-3 rounded-full font-bold text-lg transition-all border-2 border-transparent ${tab === t ? 'bg-teal-900 text-white shadow-lg scale-105' : 'bg-white/60 text-teal-900 hover:bg-white border-white'} cursor-pointer`}>
                         {t === 'who' && 'Definition (WHO)'}
                         {t === 'persp' && 'Med vs. Ed'}
                         {t === 'incl' && 'Inclusion'}
@@ -373,7 +356,7 @@
                </div>
                <div className="flex-grow bg-white rounded-[3rem] p-12 shadow-2xl border border-white/50 relative overflow-hidden overflow-y-auto custom-scroll">
                   {tab === 'who' && (
-                     <div className="flex flex-col md:flex-row items-center gap-12 h-full animate-[fadeIn_0.5s]">
+                     <div className="flex flex-col md:flex-row items-center gap-12 h-full fade-in">
                         <div className="md:w-1/3 bg-blue-50 p-10 rounded-[2.5rem] h-full flex items-center justify-center border border-blue-100"><BookOpen size={140} className="text-blue-300 drop-shadow-sm"/></div>
                         <div className="md:w-2/3">
                            <h2 className="text-5xl font-serif font-bold mb-8 text-gray-900">What is ASD?</h2>
@@ -391,7 +374,7 @@
                      </div>
                   )}
                   {tab === 'persp' && (
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-full animate-[fadeIn_0.5s]">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-full fade-in">
                         <div className="bg-red-50 p-10 rounded-[2.5rem] border border-red-100 flex flex-col shadow-sm">
                            <div className="flex items-center gap-5 mb-8 text-red-800"><div className="p-4 bg-red-100 rounded-2xl"><Activity size={40}/></div><h3 className="font-bold text-3xl">Medical Perspective</h3></div>
                            <ul className="space-y-6 text-xl font-medium text-red-900 mb-auto">
@@ -413,7 +396,7 @@
              </div>
           )}
           {tab === 'incl' && (
-              <div className="animate-[fadeIn_0.5s] p-8 h-full flex flex-col justify-center">
+              <div className="fade-in p-8 h-full flex flex-col justify-center">
                   <h2 className="text-4xl font-serif font-bold text-teal-900 mb-12 text-center">Inclusion in Educational Research</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="bg-gray-50 p-8 rounded-[2rem] border-t-8 border-teal-500 shadow-md hover:-translate-y-2 transition-transform">
@@ -514,9 +497,10 @@ const EFLStrengthsModule = () => (
   </div>
 );
 
-// --- MODULE 5: STUDENT PROFILES ---
+// --- MODULE 6: STUDENT PROFILES (MERGED & FIXED) ---
 const StudentProfilesModule = () => {
     const [activeTab, setActiveTab] = useState(0);
+    // Local state for toggling view, preserves consistency
     const [isAnalysisMode, setIsAnalysisMode] = useState(false);
 
     const s = STUDENTS_DATA[activeTab];
@@ -527,7 +511,7 @@ const StudentProfilesModule = () => {
                 <h2 className="text-4xl font-serif font-bold text-teal-900">Fictional Case Studies</h2>
                 <button 
                     onClick={() => setIsAnalysisMode(!isAnalysisMode)}
-                    className={`px-6 py-3 rounded-full font-bold text-lg shadow-lg transition-all flex items-center gap-2 ${isAnalysisMode ? 'bg-teal-900 text-white' : 'bg-white text-teal-900 border-2 border-teal-900'}`}
+                    className={`px-6 py-3 rounded-full font-bold text-lg shadow-lg transition-all flex items-center gap-2 cursor-pointer ${isAnalysisMode ? 'bg-teal-900 text-white' : 'bg-white text-teal-900 border-2 border-teal-900'}`}
                 >
                     {isAnalysisMode ? <><Eye size={20}/> View Observation</> : <><Search size={20}/> Reveal Analysis</>}
                 </button>
@@ -538,7 +522,7 @@ const StudentProfilesModule = () => {
                     <button
                         key={idx}
                         onClick={() => setActiveTab(idx)}
-                        className={`flex items-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-md ${
+                        className={`flex items-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-md cursor-pointer ${
                             activeTab === idx 
                             ? 'bg-teal-900 text-white scale-105 ring-4 ring-teal-100' 
                             : 'bg-white text-gray-500 hover:bg-gray-50'
@@ -554,7 +538,7 @@ const StudentProfilesModule = () => {
 
             <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-white/50 flex-grow relative overflow-hidden flex flex-col">
                 {!isAnalysisMode ? (
-                    <div className="flex flex-col items-center justify-center text-center h-full animate-[fadeIn_0.5s]">
+                    <div className="flex flex-col items-center justify-center text-center h-full fade-in">
                         <div className={`w-32 h-32 rounded-full ${s.color} flex items-center justify-center mb-8 shadow-inner`}>
                             {React.cloneElement(s.icon, {size: 64})}
                         </div>
@@ -565,7 +549,7 @@ const StudentProfilesModule = () => {
                         </blockquote>
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col animate-[fadeIn_0.5s] overflow-y-auto custom-scroll pr-2">
+                    <div className="h-full flex flex-col fade-in overflow-y-auto custom-scroll pr-2">
                         <div className="flex items-center gap-6 mb-8 shrink-0">
                             <div className="bg-teal-100 p-4 rounded-2xl text-teal-800"><Activity size={32}/></div>
                             <div>
@@ -607,9 +591,9 @@ const StudentProfilesModule = () => {
             </div>
         </div>
     );
-}
+};
 
-// --- MODULE 6: ANALYSIS (OTT 2025) ---
+// --- MODULE 7: ANALYSIS (OTT 2025) ---
 const AnalysisModule = () => {
    const [activeTab, setActiveTab] = useState('criteria'); 
    return (
@@ -621,13 +605,13 @@ const AnalysisModule = () => {
             <p className="text-xl text-gray-600 font-medium">Accessibility of EFL Materials for Learners with ASD</p>
           </div>
           <div className="bg-white/50 p-1.5 rounded-full flex gap-2">
-              <button onClick={() => setActiveTab('criteria')} className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeTab === 'criteria' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Theory: Criteria</button>
-              <button onClick={() => setActiveTab('example')} className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeTab === 'example' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Example: Weather Task</button>
+              <button onClick={() => setActiveTab('criteria')} className={`px-6 py-3 rounded-full text-base font-bold transition-all cursor-pointer ${activeTab === 'criteria' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Theory: Criteria</button>
+              <button onClick={() => setActiveTab('example')} className={`px-6 py-3 rounded-full text-base font-bold transition-all cursor-pointer ${activeTab === 'example' ? 'bg-teal-900 text-white shadow-lg' : 'text-gray-500 hover:bg-white'}`}>Example: Weather Task</button>
           </div>
       </div>
 
       {activeTab === 'criteria' && (
-         <div className="animate-[fadeIn_0.5s] flex flex-col h-full">
+         <div className="fade-in flex flex-col h-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 flex-grow">
                 <div className="bg-white p-8 rounded-[2.5rem] border-t-8 border-blue-500 shadow-lg hover:-translate-y-1 transition-transform">
                     <h3 className="font-bold text-2xl mb-4 text-gray-800">1. Task Structure</h3>
@@ -669,7 +653,7 @@ const AnalysisModule = () => {
       )}
 
       {activeTab === 'example' && (
-         <div className="animate-[fadeIn_0.5s] h-full flex flex-col">
+         <div className="fade-in h-full flex flex-col">
             <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-gray-200 flex-grow flex flex-col md:flex-row gap-8 overflow-hidden">
                  <div className="md:w-1/2 bg-[#FFFBEB] rounded-[2rem] p-10 border-4 border-white shadow-inner relative overflow-hidden flex flex-col items-center justify-center text-center group">
                       <div className="absolute top-0 left-0 bg-red-500 text-white text-sm font-bold px-6 py-2 rounded-br-2xl z-10 shadow-md">Version A: High Load</div>
@@ -709,7 +693,7 @@ const AnalysisModule = () => {
    );
 };
 
-// --- MODULE 7: DISCUSSION (UPDATED WITH TOGGLE) ---
+// --- MODULE 8: DISCUSSION (UPDATED WITH TOGGLE) ---
 const DiscussionModule = () => {
    const [showSolutions, setShowSolutions] = useState(false);
 
@@ -734,13 +718,13 @@ const DiscussionModule = () => {
             {!showSolutions ? (
                 <button 
                     onClick={() => setShowSolutions(true)} 
-                    className="w-full py-6 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold text-lg flex flex-col items-center gap-2 transition-colors border-2 border-dashed border-gray-300"
+                    className="w-full py-6 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold text-lg flex flex-col items-center gap-2 transition-colors border-2 border-dashed border-gray-300 cursor-pointer"
                 >
                     <Lock size={32}/>
                     <span>Click to Reveal Didactic Solutions</span>
                 </button>
             ) : (
-                <div className="animate-[fadeIn_0.5s]">
+                <div className="fade-in">
                     <h3 className="text-2xl font-bold text-gray-800 mb-6">Joint Reflection: Didactic Solutions</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl"><div className="bg-green-100 p-2 rounded-full"><Check size={24} className="text-green-600"/></div><span className="text-lg text-gray-700 font-bold">Clearer task structure (Step-by-step).</span></div>
@@ -757,7 +741,7 @@ const DiscussionModule = () => {
    );
 };
 
-// --- MODULE 8: CONCLUSION ---
+// --- MODULE 9: CONCLUSION ---
 const ConclusionModule = () => (
     <div className="h-full flex flex-col items-center justify-center p-4 max-w-5xl mx-auto">
         <h2 className="text-5xl font-serif font-bold text-teal-900 mb-10">Conclusion</h2>
@@ -778,7 +762,7 @@ const ConclusionModule = () => (
     </div>
 );
 
-// --- MODULE 9: REFERENCES & THANK YOU ---
+// --- MODULE 10: REFERENCES & THANK YOU ---
 const ReferencesModule = () => (
     <div className="h-full w-full flex flex-col p-4 max-w-[1600px] mx-auto overflow-hidden">
         <div className="flex-grow flex flex-col lg:flex-row gap-8 h-full">
@@ -818,22 +802,23 @@ function DashboardApp() {
   const [activeModule, setActiveModule] = useState(0);
 
   const modules = [
-    <AgendaModule onNavigate={setActiveModule} />,
-    <HomeModule onNavigate={setActiveModule} />,
-    <ActivationModule />,
-    <FoundationsModule />,
-    <EFLChallengesModule />, // New Module 4a
-    <EFLStrengthsModule />,  // New Module 4b
-    <StudentProfilesModule />,
-    <AnalysisModule />,
-    <DiscussionModule />,
-    <ConclusionModule />,
-    <ReferencesModule />
+    <CoverModule onNavigate={setActiveModule} />,  // Module 0: Cover
+    <AgendaModule onNavigate={setActiveModule} />, // Module 1: Agenda
+    <ActivationModule />,                          // Module 2: Experiment (Tunnel -> Reflection)
+    <TunnelAnalysisModule />,                      // Module 3: Tunnel Analysis
+    <FoundationsModule />,                         // Module 4: Foundations
+    <EFLChallengesModule />,                       // Module 5: EFL Challenges
+    <EFLStrengthsModule />,                        // Module 6: EFL Solutions
+    <StudentProfilesModule />,                     // Module 7: Profiles (Combined)
+    <AnalysisModule />,                            // Module 8: Ott 2025
+    <DiscussionModule />,                          // Module 9: Sam
+    <ConclusionModule />,                          // Module 10: Conclusion
+    <ReferencesModule />                           // Module 11: Refs
   ];
 
   return (
     <DashboardLayout 
-      title="Dashboard V3.6" 
+      title="Dashboard V4.9" 
       activeModule={activeModule} 
       onNavigate={setActiveModule}
       onHome={() => setActiveModule(0)}
